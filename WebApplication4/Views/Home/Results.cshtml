@@ -1,0 +1,91 @@
+﻿@using WebApplication4.Models.ResponseModels
+@using WebApplication4.Models.StorageModels
+@model WebApplication4.Models.ResultsViewModel
+
+@{
+    ViewData["Title"] = "View";
+}
+<meta http-equiv="refresh" content="0.5" />
+<style>
+    html {
+        background: linear-gradient(45deg, #EECFBA, #C5DDE8);
+    }
+
+    h1 {
+        text-align: center;
+        font-family: sans-serif;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 14px;
+        border-collapse: collapse;
+        text-align: center;
+    }
+    th, td:first-child {
+        background: #AFCDE7;
+        padding: 10px 20px;
+        font-weight: bold;
+    }
+    th, td {
+        border-style: solid;
+        border-width: 0 1px 1px 0;
+        border-color: white;
+    }
+    td {
+        background: #D8E6F3;
+    }
+    th:first-child, td:first-child {
+        text-align: left;
+    }
+</style>
+
+<h1>Запросы</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Команда</th>
+            <th>Температура</th>
+            <th>Влажность</th>
+            <th>Последний вызов охраны</th>
+            <th>Последний запрос</th>
+            <th>Состояние</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var t in Model.Houses.OrderBy(x => x.Name))
+    {
+        <tr>
+            <td>@t.Name</td>
+            <td>@(t.Temperature?.ToString() ?? "Нет данных")</td>
+            <td>@(t.Humidity?.ToString() ?? "Нет данных")</td>
+            <td>@LGC(t)</td>
+            <td>@(t.LastRequestTime?.ToLongTimeString() ?? "Нет данных")</td>
+            <td>@(t.StatusString)</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@functions{
+
+    string LGC(HouseTeamModel houseTeamModel)
+    {
+        if (houseTeamModel.LastGuardCall == null)
+        {
+            return "Нет данных";
+        }
+
+        if (DateTime.Now - houseTeamModel.LastGuardCall > TimeSpan.FromMinutes(1))
+        {
+            return "> 60 сек. назад";
+        }
+
+        return ((int) (DateTime.Now - houseTeamModel.LastGuardCall).Value.TotalSeconds).ToString() + " сек. назад";
+    }
+
+}
